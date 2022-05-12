@@ -1,16 +1,21 @@
 const Bidding = require("../models/biddingModel")
 const User = require("../models/userModel")
 
+// {
+//   "name": "car",
+//   "price": 12000,
+//   "ownerId": "627b83ce426df4205e8a0b3d",
+//   "photo": "awdawda"
+// }
+
 const createBid = async (req, res) => {
+  const { name, price, ownerId, photo, expire } = req.body
+  const data = { name, price, ownerId, photo, expire }
   try {
-    const user = await User.findByCredentials(req.body.email, req.body.password)
-    if (user) {
-      res.cookie("user", user)
-      res.status(201).send(user)
-    } else res.status(401).send("User Not Found")
+    const resp = await Bidding.create(data)
+    res.status(201).send(resp)
   } catch (err) {
-    console.log(err.message)
-    res.status(400).send(err.message)
+    res.status(400).send(err)
   }
 }
 
@@ -24,7 +29,7 @@ const updateBid = async (req, res) => {
   if (!USER || !BIDDING) res.status(404).send("User or Bid not found")
 
   try {
-    //modifying the bid
+    //modifying if bid is already made
     if (USER.biddings.length > 0) {
       const oldBid = USER.biddings.find(
         (userBid) => userBid.bid.toString() === bidId.toString()
@@ -41,6 +46,7 @@ const updateBid = async (req, res) => {
       await BIDDING.save()
       await USER.save()
     }
+
     //Creating a new Bid
     if (USER.cash >= BIDDING.price) {
       if (biddingPrice < BIDDING.price)

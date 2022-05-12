@@ -18,13 +18,11 @@ import AnimatedRouteWrapper from "../providers/AnimatedRouteWrapper"
 import { register, reset } from "../feature/auth/authSlice"
 
 const Register = (props) => {
-  const role = props.role;
   const [form, setform] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role
   })
 
   const { name, email, password, confirmPassword } = form

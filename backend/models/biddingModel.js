@@ -25,6 +25,10 @@ const BiddingSchema = new Schema(
     ],
     photo: {
       type: String,
+      // required: true,
+    },
+    expire: {
+      type: String,
       required: true,
     },
   },
