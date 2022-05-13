@@ -59,7 +59,7 @@ const Login = () => {
 
   return (
     <AnimatedRouteWrapper>
-      <VStack height="100vh">
+      <VStack overflow={"hidden"} height="100vh">
         <Spacer />
         <Container align="center" backgroundColor={bg} p="10" rounded="xl">
           <Main>Sign In</Main>

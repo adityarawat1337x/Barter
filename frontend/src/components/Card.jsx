@@ -6,81 +6,78 @@ import {
   Text,
   Stack,
   Image,
-  Spacer,
 } from "@chakra-ui/react"
+import axios from "axios"
+import { useEffect, useState } from "react"
+import { useDispatch } from "react-redux"
+import { getBid } from "../feature/bids/bidSlice"
 
 const IMAGE = "https://source.unsplash.com/random"
 
 export default function Card(props) {
-  let item = props.item
+  let { bid, item } = props
+  const [Item, setItem] = useState(item)
+  const [timer, setTimer] = useState(0)
+
+  useEffect(() => {
+    const f = async () => {
+      if (item === undefined) {
+        const data = await axios.get("http://localhost:5000/bids/" + bid.bid)
+        setItem(data.data)
+      }
+    }
+    f()
+  }, [])
+
+  useEffect(() => {
+    const Interval = setInterval(() => {
+      setTimer(timer - 1)
+    }, 1000)
+    return () => {
+      clearInterval(Interval)
+    }
+  }, [timer])
+
   return (
-    <>
-      <Spacer />
-      <Center py={12}>
-        <Box
-          role={"group"}
-          p={6}
-          maxW={"330px"}
-          w={"full"}
-          bg={useColorModeValue("white", "gray.800")}
-          boxShadow={"2xl"}
-          rounded={"lg"}
-          pos={"relative"}
-          zIndex={1}
-        >
-          <Box
-            rounded={"lg"}
-            pos={"relative"}
-            height={"230px"}
-            _after={{
-              transition: "all .3s ease",
-              content: '""',
-              w: "full",
-              h: "full",
-              pos: "absolute",
-              top: 5,
-              left: 0,
-              backgroundImage: `url(${IMAGE})`,
-              filter: "blur(10px)",
-              zIndex: -1,
-            }}
-            _groupHover={{
-              _after: {
-                filter: "blur(10px)",
-              },
-            }}
-          >
+    <Stack
+      alignItems="center"
+      justifyContent="center"
+      m={4}
+      maxW="300px"
+      maxH="350px"
+      bg={useColorModeValue("white", "gray.800")}
+      boxShadow={"2xl"}
+      rounded={"lg"}
+    >
+      {Item ? (
+        <>
+          <Box rounded={"lg"}>
             <Image
+              w="200px"
+              h="200px"
               rounded={"lg"}
-              height={230}
-              width={282}
               objectFit={"cover"}
               src={IMAGE}
+              m={4}
             />
           </Box>
-          <Stack pt={10} align={"center"}>
-            <Text
-              color={"gray.500"}
-              fontSize={"sm"}
-              textTransform={"uppercase"}
-            >
-              Brand
-            </Text>
+          <Stack align={"center"}>
             <Heading fontSize={"2xl"} fontFamily={"body"} fontWeight={500}>
-              {item.name}
+              {Item.name}
             </Heading>
             <Stack direction={"row"} align={"center"}>
               <Text fontWeight={800} fontSize={"xl"}>
-                ${item.price}
+                ${Item.price}
               </Text>
               <Text textDecoration={"line-through"} color={"gray.600"}>
-                ${item.price + 9000}
+                {timer}
               </Text>
             </Stack>
           </Stack>
-        </Box>
-      </Center>
-      <Spacer />
-    </>
+        </>
+      ) : (
+        <></>
+      )}
+    </Stack>
   )
 }

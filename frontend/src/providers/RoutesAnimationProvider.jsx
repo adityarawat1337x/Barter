@@ -13,10 +13,8 @@ const RoutesAnimationProvider = () => {
       <Routes location={location} key={location.pathname}>
         <Route exact path="/" element={<Dashboard />} />
         <Route exact path="/login" element={<Login />} />
-        <Route exact path="/register" element={<Register role={0}/>} />
-        <Route exact path="/creator/register" element={<Register role={1}/>} />
-        <Route exact path="/admin/register" element={<Register role={2}/>} />
-        <Route path="*" element={<FourZeroFour/>} />
+        <Route exact path="/register" element={<Register role={0} />} />
+        <Route path="*" element={<FourZeroFour />} />
       </Routes>
     </AnimatePresence>
   )

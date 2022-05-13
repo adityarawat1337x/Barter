@@ -18,10 +18,13 @@ import { create } from "../feature/bids/bidSlice"
 const CreateBid = () => {
   const [item, setItem] = useState({
     name: "",
-    price: null,
+    price: 0,
     photo: "",
     ownerId: "",
-    expire: new Date().getTime(),
+    expire: {
+      date: new Date().toDateString(),
+      time: new Date().getTime(),
+    },
   })
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -48,7 +51,7 @@ const CreateBid = () => {
   return user ? (
     <>
       <Button onClick={onOpen} variant="solid" colorScheme="green">
-        New
+        Want to sell?
       </Button>
       <Modal
         isCentered
@@ -69,6 +72,7 @@ const CreateBid = () => {
               value={item.name}
               onChange={(e) => {
                 const val = e.target.value
+
                 setItem((prev) => ({ ...prev, name: val }))
               }}
               type="text"
@@ -90,10 +94,26 @@ const CreateBid = () => {
               w="90%"
               placeholder="Timer"
               variant="filled"
-              value={item.expire}
+              value={item.expire.date}
               onChange={(e) => {
                 const val = e.target.value
-                setItem((prev) => ({ ...prev, expire: val }))
+                var parts = val.split("-")
+                var mydate = new Date(parts[0], parts[1] - 1, parts[2])
+                setItem((prev) => ({ ...prev.expire, date: mydate }))
+              }}
+              type="date"
+            />
+            <Input
+              w="90%"
+              placeholder="Timer"
+              variant="filled"
+              value={item.expire.time}
+              onChange={(e) => {
+                const val = e.target.value
+                setItem((prev) => ({
+                  ...prev,
+                  expire: { ...prev.expire, time: val },
+                }))
               }}
               type="time"
             />

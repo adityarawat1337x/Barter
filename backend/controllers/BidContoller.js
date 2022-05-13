@@ -1,6 +1,5 @@
-const Bidding = require("../models/biddingModel")
 const User = require("../models/userModel")
-
+const Bidding = require("../models/biddingModel")
 // {
 //   "name": "car",
 //   "price": 12000,
@@ -13,6 +12,9 @@ const createBid = async (req, res) => {
   const data = { name, price, ownerId, photo, expire }
   try {
     const resp = await Bidding.create(data)
+    const owner = await User.findById(ownerId)
+    owner.selling.push({ bid: resp._id, price: resp.price })
+    await owner.save()
     res.status(201).send(resp)
   } catch (err) {
     res.status(400).send(err)

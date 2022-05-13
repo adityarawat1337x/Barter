@@ -28,4 +28,12 @@ const loginUser = async (req, res) => {
   }
 }
 
-module.exports = { loginUser, createUser }
+const getUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+    res.status(201).send(user)
+  } catch (err) {
+    res.status(400).send(err)
+  }
+}
+module.exports = { loginUser, createUser, getUser }

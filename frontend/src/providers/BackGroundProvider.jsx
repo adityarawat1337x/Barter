@@ -8,17 +8,7 @@ const BackGroundProvider = (props) => {
   const { colorMode, toggleColorMode } = useColorMode()
 
   return (
-    <Box overflow="hidden" h="100vh">
-      <Image
-        src={bgI}
-        w="100vw"
-        h="100vh"
-        zIndex="-1"
-        position="absolute"
-        filter={
-          colorMode === "dark" ? "hue-rotate(200deg)" : "hue-rotate(0deg)"
-        }
-      />
+    <Box transition="1s ease" h="100%">
       {props.children}
     </Box>
   )

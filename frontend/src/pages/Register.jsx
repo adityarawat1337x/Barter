@@ -64,7 +64,7 @@ const Register = (props) => {
 
   return (
     <AnimatedRouteWrapper>
-      <VStack h="100vh" align="center">
+      <VStack overflow={"hidden"} h="100vh" align="center">
         <Spacer />
 
         <Container align="center" backgroundColor={bg} p="10" rounded="xl">

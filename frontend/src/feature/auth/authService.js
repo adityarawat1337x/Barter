@@ -3,6 +3,7 @@ import axios from "axios"
 const API_URL_REGISTER = "http://localhost:5000/register"
 const API_URL_ADMIN_REGISTER = "http://localhost:5000/admin/register"
 const API_URL_LOGIN = "http://localhost:5000/login"
+const API_URL_USER = "http://localhost:5000/user/"
 
 //? Register User
 
@@ -26,9 +27,16 @@ const logout = async () => {
   localStorage.removeItem("user")
 }
 
+const getUser = async (id) => {
+  const user = await axios.get(API_URL_USER + id)
+  if (user.data) localStorage.setItem("user", JSON.stringify(user.data))
+  return user.data
+}
+
 const authService = {
   register,
   logout,
+  getUser,
   login,
 }
 export default authService

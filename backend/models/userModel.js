@@ -30,7 +30,7 @@ const userSchema = new Schema(
         price: Number,
       },
     ],
-    winnings: [
+    selling: [
       {
         bid: {
           type: ObjectId,
