@@ -3,7 +3,7 @@ import { React, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useLocation, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
-import Card from "../components/Card"
+import BiddingModal from "../components/BiddingModal"
 import CreateBid from "../components/CreateBid"
 import { getUser } from "../feature/auth/authSlice"
 import { getAllBids } from "../feature/bids/bidSlice"
@@ -60,7 +60,7 @@ const selling = (user) => (
       {user && user.selling[0] ? (
         user.selling.map((bid, idx) => (
           <WrapItem key={idx}>
-            <Card bid={bid} />
+            <BiddingModal bid={bid}></BiddingModal>
           </WrapItem>
         ))
       ) : (
@@ -83,7 +83,7 @@ const bidding = (user) => (
       {user && user.biddings[0] ? (
         user.biddings.map((bid, idx) => (
           <WrapItem key={idx}>
-            <Card bid={bid}></Card>
+            <BiddingModal bid={bid}></BiddingModal>
           </WrapItem>
         ))
       ) : (
@@ -102,7 +102,7 @@ const allBiddings = (bids) => (
       {bids[0] ? (
         bids.map((bid, idx) => (
           <WrapItem key={idx}>
-            <Card item={bid}></Card>
+            <BiddingModal item={bid}></BiddingModal>
           </WrapItem>
         ))
       ) : (

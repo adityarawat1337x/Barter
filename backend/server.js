@@ -18,5 +18,5 @@ app.use(router)
 
 //Starting Server
 app.listen(port, () => {
-  console.log(`Server is up on port ${port}`.blue.inverse)
+  console.log(`\nServer is up on port ${port}`.blue.inverse)
 })

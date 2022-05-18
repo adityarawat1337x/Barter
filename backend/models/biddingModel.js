@@ -30,7 +30,6 @@ const BiddingSchema = new Schema(
     expire: {
       type: {
         date: Date,
-        time: "String",
       },
       required: true,
     },

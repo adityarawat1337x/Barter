@@ -10,10 +10,13 @@ import {
   useDisclosure,
   ModalFooter,
   Input,
-  Spacer,
+  MenuItemOption,
+  NumberInput,
+  NumberInputField,
 } from "@chakra-ui/react"
 import { useDispatch, useSelector } from "react-redux"
 import { create } from "../feature/bids/bidSlice"
+import Time from "./Time"
 
 const CreateBid = () => {
   const [item, setItem] = useState({
@@ -22,8 +25,7 @@ const CreateBid = () => {
     photo: "",
     ownerId: "",
     expire: {
-      date: new Date().toDateString(),
-      time: new Date().getTime(),
+      date: Date.now(),
     },
   })
 
@@ -35,11 +37,28 @@ const CreateBid = () => {
     if (user._id) setItem((prev) => ({ ...prev, ownerId: user._id }))
   }, [user])
 
+  function formatDate(date) {
+    var d = new Date(date),
+      month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear()
+    if (month.length < 2) month = "0" + month
+    if (day.length < 2) day = "0" + day
+    return [year, month, day].join("-")
+  }
+
   const submit = async () => {
     console.log(item)
     try {
       //TODO add phtoto here
-      if (!item.expire || !item.name || !item.price || !item.ownerId) return
+      if (
+        !item.expire ||
+        item.expire.date <= Date.now() ||
+        !item.name ||
+        !item.price ||
+        !item.ownerId
+      )
+        return
       console.log("send request")
       dispatch(create(item))
       onClose()
@@ -64,7 +83,6 @@ const CreateBid = () => {
           <ModalCloseButton />
           <ModalBody>
             <ModalHeader>Create a Bid</ModalHeader>
-            <Spacer />
             <Input
               w="90%"
               placeholder="Name of Item"
@@ -72,54 +90,45 @@ const CreateBid = () => {
               value={item.name}
               onChange={(e) => {
                 const val = e.target.value
-
                 setItem((prev) => ({ ...prev, name: val }))
               }}
               type="text"
             />
-            <Spacer />
+            <NumberInput variant="filled">
+              <NumberInputField
+                w="90%"
+                placeholder="Price of Item"
+                value={item.price}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value)
+                  setItem((prev) => ({ ...prev, price: val }))
+                }}
+              ></NumberInputField>
+            </NumberInput>
             <Input
               w="90%"
-              placeholder="Price of Item"
+              placeholder="Date"
               variant="filled"
-              value={item.price}
+              value={
+                item.expire.date > Date.now()
+                  ? item.expire.date.toISOString().substring(0, 10)
+                  : ""
+              }
               onChange={(e) => {
-                const val = parseInt(e.target.value)
-                setItem((prev) => ({ ...prev, price: val }))
-              }}
-              type="text"
-            />
-            <Spacer />
-            <Input
-              w="90%"
-              placeholder="Timer"
-              variant="filled"
-              value={item.expire.date}
-              onChange={(e) => {
-                const val = e.target.value
-                var parts = val.split("-")
-                var mydate = new Date(parts[0], parts[1] - 1, parts[2])
-                setItem((prev) => ({ ...prev.expire, date: mydate }))
+                let val = new Date(e.target.value)
+                setItem((prev) => ({
+                  ...prev,
+                  expire: { ...prev.expire, date: val },
+                }))
               }}
               type="date"
             />
-            <Input
-              w="90%"
-              placeholder="Timer"
-              variant="filled"
-              value={item.expire.time}
-              onChange={(e) => {
-                const val = e.target.value
-                setItem((prev) => ({
-                  ...prev,
-                  expire: { ...prev.expire, time: val },
-                }))
-              }}
-              type="time"
-            />
-            <Spacer />
+            {item.expire.date > Date.now() ? (
+              <Time setDate={setItem} actualDate={item.expire.date} />
+            ) : (
+              <></>
+            )}
           </ModalBody>
-
           <ModalFooter display="flex" justifyContent="center">
             <Button
               colorScheme="green"
