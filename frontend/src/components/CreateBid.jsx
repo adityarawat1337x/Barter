@@ -10,7 +10,6 @@ import {
   useDisclosure,
   ModalFooter,
   Input,
-  MenuItemOption,
   NumberInput,
   NumberInputField,
 } from "@chakra-ui/react"
@@ -37,16 +36,6 @@ const CreateBid = () => {
     if (user._id) setItem((prev) => ({ ...prev, ownerId: user._id }))
   }, [user])
 
-  function formatDate(date) {
-    var d = new Date(date),
-      month = "" + (d.getMonth() + 1),
-      day = "" + d.getDate(),
-      year = d.getFullYear()
-    if (month.length < 2) month = "0" + month
-    if (day.length < 2) day = "0" + day
-    return [year, month, day].join("-")
-  }
-
   const submit = async () => {
     console.log(item)
     try {
@@ -59,7 +48,6 @@ const CreateBid = () => {
         !item.ownerId
       )
         return
-      console.log("send request")
       dispatch(create(item))
       onClose()
     } catch (e) {

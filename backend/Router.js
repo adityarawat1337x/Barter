@@ -9,11 +9,11 @@ const {
   getUser,
 } = require("./controllers/UserController")
 const {
-  createBid,
-  updateBid,
-  getAllBids,
-  getBid,
-} = require("./controllers/BidContoller")
+  createProduct,
+  getAllProducts,
+  getProduct,
+} = require("./controllers/ProductController")
+const { putBidOn, getUserBids } = require("./controllers/BidContoller")
 
 //*Connecting Database
 connectDB()
@@ -24,9 +24,10 @@ router.post("/login", loginUser)
 router.get("/user/:id", getUser)
 
 //* BIDDING ROUTES
-router.post("/bids/create", createBid)
-router.post("/bids/:id", updateBid)
-router.get("/bids", getAllBids)
-router.get("/bids/:id", getBid)
+router.post("/bids/create", createProduct)
+router.get("/bids/user/:id", getUserBids)
+router.post("/bids/:id", putBidOn)
+router.get("/bids", getAllProducts)
+router.get("/bids/:id", getProduct)
 
 module.exports = router

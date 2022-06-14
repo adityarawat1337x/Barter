@@ -1,12 +1,12 @@
 import { VStack, Heading, Spacer, Wrap, WrapItem } from "@chakra-ui/react"
-import { React, useEffect } from "react"
+import { React, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useLocation, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import BiddingModal from "../components/BiddingModal"
 import CreateBid from "../components/CreateBid"
 import { getUser } from "../feature/auth/authSlice"
-import { getAllBids } from "../feature/bids/bidSlice"
+import { getAllBids, getUserBids } from "../feature/bids/bidSlice"
 import AnimatedRouteWrapper from "../providers/AnimatedRouteWrapper"
 
 const Dashboard = () => {
@@ -15,31 +15,30 @@ const Dashboard = () => {
   const dispatch = useDispatch()
 
   const { user, isLoading } = useSelector((state) => state.auth)
-  const { bids } = useSelector((state) => state.items)
+  const { sell: userSellProducts } = useSelector((state) => state.items.bids)
+  const { buy: userBuyProducts } = useSelector((state) => state.items.bids)
 
   useEffect(() => {
     if (!user && !isLoading && location.pathname === "/") {
       toast.error("You must be logged in to view this page")
       navigate("/login")
     }
-  }, [user, isLoading, location, dispatch, bids, navigate])
+  }, [user, isLoading])
 
   useEffect(() => {
-    dispatch(getAllBids())
+    if (user) {
+      dispatch(getUser(user._id))
+      dispatch(getUserBids(user._id))
+    }
   }, [])
-
-  useEffect(() => {
-    if (user) dispatch(getUser(user._id))
-  }, [bids])
 
   return user ? (
     <AnimatedRouteWrapper>
       <VStack>
-        {user ? <CreateBid /> : <></>}
+        <CreateBid />
         <Spacer />
         {selling(user)}
-        {bidding(user)}
-        {allBiddings(bids)}
+        {bidding(userBuyProducts)}
       </VStack>
     </AnimatedRouteWrapper>
   ) : (
@@ -52,15 +51,15 @@ const selling = (user) => (
     <Heading
       w="100%"
       justifyContent="flex-start"
-      display={user && user.selling[0] ? "block" : "none"}
+      display={user && user.selling && user.selling[0] ? "block" : "none"}
     >
       You are selling
     </Heading>
     <Wrap spacing="5" w="100%" maxW="90vw">
-      {user && user.selling[0] ? (
-        user.selling.map((bid, idx) => (
+      {user && user.selling && user.selling[0] ? (
+        user.selling.map((product, idx) => (
           <WrapItem key={idx}>
-            <BiddingModal bid={bid}></BiddingModal>
+            <BiddingModal productId={product._id}></BiddingModal>
           </WrapItem>
         ))
       ) : (
@@ -70,20 +69,20 @@ const selling = (user) => (
   </>
 )
 
-const bidding = (user) => (
+const bidding = (userBuyProducts) => (
   <>
     <Heading
       w="100%"
       justifyContent="flex-start"
-      display={user && user.biddings[0] ? "block" : "none"}
+      display={userBuyProducts ? "block" : "none"}
     >
       You are bidding on
     </Heading>
     <Wrap spacing="5" w="100%" maxW="90vw">
-      {user && user.biddings[0] ? (
-        user.biddings.map((bid, idx) => (
+      {userBuyProducts ? (
+        userBuyProducts.map((bid, idx) => (
           <WrapItem key={idx}>
-            <BiddingModal bid={bid}></BiddingModal>
+            <BiddingModal bid={{ _id: bid.product }}></BiddingModal>
           </WrapItem>
         ))
       ) : (
@@ -93,22 +92,4 @@ const bidding = (user) => (
   </>
 )
 
-const allBiddings = (bids) => (
-  <>
-    <Heading w="100%" justifyContent="flex-start">
-      All Biddings
-    </Heading>
-    <Wrap spacing="5" w="100%" maxW="90vw">
-      {bids[0] ? (
-        bids.map((bid, idx) => (
-          <WrapItem key={idx}>
-            <BiddingModal item={bid}></BiddingModal>
-          </WrapItem>
-        ))
-      ) : (
-        <></>
-      )}
-    </Wrap>
-  </>
-)
 export default Dashboard

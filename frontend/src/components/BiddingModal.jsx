@@ -18,23 +18,39 @@ import {
 } from "@chakra-ui/react"
 import Card from "./Card"
 import axios from "axios"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
+import { updateBid } from "../feature/bids/bidSlice"
+import { toast } from "react-toastify"
 const IMAGE = "https://source.unsplash.com/random"
 
 const BiddingModal = (props) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const user = useSelector((state) => state.auth.user)
   let { bid, item } = props
-  const [Bid, setBid] = useState(item)
+  const [Bid, setBid] = useState({})
   const [Item, setItem] = useState(item)
   const dispatch = useDispatch()
 
   useEffect(() => {
     const f = async () => {
       if (item === undefined) {
-        const data = await axios.get("http://localhost:5000/bids/" + bid.bid)
-        setBid(data.data)
+        const data = await axios.get("http://localhost:5000/bids/" + bid._id)
+        setBid({
+          userId: user._id,
+          price: data.data.price,
+          id: bid._id,
+          ownerId: data.data.ownerId,
+        })
         setItem(data.data)
+        return
       }
+      setBid({
+        userId: user._id,
+        price: Item.price,
+        id: Item._id,
+        ownerId: Item.ownerId,
+      })
+      setItem(item)
     }
     f()
   }, [])
@@ -42,17 +58,16 @@ const BiddingModal = (props) => {
   const submit = async () => {
     try {
       //TODO add phtoto here
-      if (
-        !Bid.expire ||
-        Bid.expire.date <= Date.now() ||
-        !Bid.name ||
-        !Bid.price ||
-        !Bid.ownerId
-      )
+      console.log(Bid)
+      if (!Bid.id || !Bid.price || !Bid.userId || !Bid.ownerId) return
+      if (Bid.userId === Bid.ownerId) {
+        toast.error("Self bidding not allowed")
+        onClose()
         return
-      console.log("send request")
-      dispatch(update(Bid))
+      }
+      console.log("Send request")
       onClose()
+      dispatch(updateBid(Bid))
     } catch (e) {
       console.log(e.message)
     }
@@ -62,9 +77,7 @@ const BiddingModal = (props) => {
     <>
       {Item ? (
         <>
-          <Card bid={bid} Item={Item} click={onOpen}>
-            aaaaa
-          </Card>
+          <Card Item={Item} click={onOpen}></Card>
           <Modal
             isCentered
             onClose={onClose}
@@ -93,14 +106,19 @@ const BiddingModal = (props) => {
                       <NumberInput w="50%">
                         <NumberInputField
                           placeholder="New bidding price"
-                          value={Item.price + 50}
+                          value={Bid.price}
                           onChange={(e) => {
                             const val = parseInt(e.target.value)
                             setBid((prev) => ({ ...prev, price: val }))
                           }}
                         ></NumberInputField>
                       </NumberInput>
-                      <Button background="tomato" p="1" borderRadius="md">
+                      <Button
+                        onClick={submit}
+                        colorScheme="whatsapp"
+                        p="1"
+                        borderRadius="md"
+                      >
                         Purchase
                       </Button>
                     </VStack>

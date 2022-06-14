@@ -1,88 +1,12 @@
 const User = require("../models/userModel")
-const Bidding = require("../models/biddingModel")
-// {
-//   "name": "car",
-//   "price": 12000,
-//   "ownerId": "627b83ce426df4205e8a0b3d",
-//   "photo": "awdawda"
-// }
+const Product = require("../models/ProductModel")
+const Bidding = require("../models/BiddingsModel")
+const { updatePrice } = require("./ProductController")
 
-const createBid = async (req, res) => {
-  const { name, price, ownerId, photo, expire } = req.body
-  const data = { name, price, ownerId, photo, expire }
+const getUserBids = async (req, res) => {
   try {
-    const resp = await Bidding.create(data)
-    const owner = await User.findById(ownerId)
-    owner.selling.push({ bid: resp._id, price: resp.price })
-    await owner.save()
-    res.status(201).send(resp)
-  } catch (err) {
-    res.status(400).send(err)
-  }
-}
-
-const updateBid = async (req, res) => {
-  const userId = req.body.userId
-  const biddingPrice = req.body.price
-  const bidId = req.params.id
-  const BIDDING = await Bidding.findById(bidId)
-  const USER = await User.findById(userId)
-
-  if (!USER || !BIDDING) res.status(404).send("User or Bid not found")
-
-  try {
-    //modifying if bid is already made
-    if (USER.biddings.length > 0) {
-      const oldBid = USER.biddings.find(
-        (userBid) => userBid.bid.toString() === bidId.toString()
-      )
-      if (oldBid === undefined)
-        res.status(401).send("You are not allowed to bid on this product")
-      USER.cash += oldBid.price
-      USER.biddings.splice(USER.biddings.indexOf(oldBid), 1)
-      const oldUserBid = BIDDING.bids.find(
-        (bidderId) => bidderId.toString() === userId
-      )
-      BIDDING.bids.splice(BIDDING.bids.indexOf(oldUserBid), 1)
-
-      await BIDDING.save()
-      await USER.save()
-    }
-
-    //Creating a new Bid
-    if (USER.cash >= BIDDING.price) {
-      if (biddingPrice < BIDDING.price)
-        res.status(401).send("You cannot bid less than the current price")
-
-      USER.cash -= biddingPrice
-      USER.biddings.push({
-        bid: BIDDING._id,
-        price: biddingPrice,
-      })
-      BIDDING.bids.push(USER._id)
-      console.log("check")
-      await BIDDING.save()
-      await USER.save()
-      res.status(201).send(USER)
-    } else res.status(401).send("Insufficient Funds")
-  } catch (err) {
-    res.status(400).send({ Error: err })
-  }
-}
-
-const getBid = async (req, res) => {
-  try {
-    const bid = await Bidding.findById(req.params.id)
-    res.send(bid)
-  } catch (e) {
-    console.log(e)
-    res.status(500).send(e)
-  }
-}
-
-const getAllBids = async (req, res) => {
-  try {
-    const bids = await Bidding.find()
+    const user = await User.findById(req.params.id)
+    const bids = await Bidding.find({ user: user._id })
     res.send(bids)
   } catch (e) {
     console.log(e)
@@ -90,4 +14,66 @@ const getAllBids = async (req, res) => {
   }
 }
 
-module.exports = { createBid, updateBid, getBid, getAllBids }
+const updatePreviousBid = async (res, USER, PRODUCT, biddingPrice, oldBid) => {
+  console.log(oldBid)
+  if (USER.funds >= PRODUCT.price - oldBid.price) {
+    if (biddingPrice <= PRODUCT.price) {
+      return res.status(401).send({
+        error: "You cannot bid less than or equal to the current price",
+      })
+    }
+    USER.funds -= PRODUCT.price - oldBid.price
+    oldBid.price = biddingPrice
+    await oldBid.save()
+    await USER.save()
+    await updatePrice(PRODUCT)
+    return res.status(201).send(oldBid)
+  } else {
+    return res.status(401).send({ error: "Insufficient Funds" })
+  }
+}
+
+const createNewBid = async (res, USER, PRODUCT, biddingPrice) => {
+  if (USER.funds >= PRODUCT.price) {
+    if (biddingPrice <= PRODUCT.price)
+      return res.status(401).send({
+        error: "You cannot bid less than or equal to the current price",
+      })
+
+    USER.funds -= biddingPrice
+    const newBid = Bidding.create({
+      user: USER._id,
+      product: PRODUCT._id,
+      price: biddingPrice,
+    })
+    await USER.save()
+    await newBid.save()
+    await updatePrice(PRODUCT)
+    return res.status(201).send(newBid)
+  } else return res.status(401).send({ error: "Insufficient Funds" })
+}
+
+const putBidOn = async (req, res) => {
+  const userId = req.body.userId
+  const biddingPrice = req.body.price
+  const bidId = req.body.id
+  const PRODUCT = await Product.findById(bidId)
+  const USER = await User.findById(userId)
+
+  if (!USER || !PRODUCT)
+    res.status(404).send({ error: "User or Product not found" })
+
+  try {
+    const oldBid = await Bidding.findOne({ user: userId, product: bidId })
+    let resp
+    if (oldBid) {
+      return updatePreviousBid(res, USER, PRODUCT, biddingPrice, oldBid)
+    } else {
+      return createNewBid(res, USER, PRODUCT, biddingPrice)
+    }
+  } catch (err) {
+    res.status(400).send({ Error: "Unknown Error" })
+  }
+}
+
+module.exports = { putBidOn, getUserBids }

@@ -38,14 +38,15 @@ import { toast } from "react-toastify"
 import { logout, reset } from "../feature/auth/authSlice"
 
 const LinkItems = [
-  { name: "Home", icon: FiHome },
-  { name: "Trending", icon: FiTrendingUp },
+  { name: "Home", icon: FiHome, link: "/" },
+  { name: "Trending", icon: FiTrendingUp, link: "/trending" },
   { name: "Explore", icon: FiCompass },
   { name: "Favourites", icon: FiStar },
   { name: "Settings", icon: FiSettings },
 ]
 export default function SidebarWithHeader(props) {
   const { isOpen, onOpen, onClose } = useDisclosure()
+
   return (
     <Box minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
       <SidebarContent
@@ -73,7 +74,10 @@ export default function SidebarWithHeader(props) {
     </Box>
   )
 }
+
 const SidebarContent = ({ onClose, ...rest }) => {
+  const navigate = useNavigate()
+
   return (
     <Box
       bg={useColorModeValue("white", "gray.900")}
@@ -91,7 +95,14 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon}>
+        <NavItem
+          onClick={() => {
+            navigate(link.link)
+            onClose()
+          }}
+          key={link.name}
+          icon={link.icon}
+        >
           {link.name}
         </NavItem>
       ))}
@@ -136,10 +147,10 @@ const NavItem = ({ icon, children, ...rest }) => {
 }
 
 const MobileNav = ({ onOpen, ...rest }) => {
-  const { user } = useSelector((state) => state.auth)
   const { colorMode, toggleColorMode } = useColorMode()
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -165,9 +176,8 @@ const MobileNav = ({ onOpen, ...rest }) => {
         fontFamily="monospace"
         fontWeight="bold"
       >
-        Logo
+        Barter
       </Text>
-
       <HStack spacing={{ base: "0", md: "6" }}>
         <IconButton
           aria-label="aria-label"

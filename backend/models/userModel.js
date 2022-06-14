@@ -21,27 +21,18 @@ const userSchema = new Schema(
       trim: true,
       minlength: 8,
     },
-    biddings: [
-      {
-        bid: {
-          type: ObjectId,
-          ref: "Bidding",
-        },
-        price: Number,
-      },
-    ],
     selling: [
       {
-        bid: {
+        _id: {
           type: ObjectId,
           ref: "Bidding",
         },
         price: Number,
       },
     ],
-    cash: {
+    funds: {
       type: Number,
-      default: 0,
+      default: 10000000,
     },
   },
   {
