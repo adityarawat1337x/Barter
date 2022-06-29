@@ -5,7 +5,7 @@ const AnimatedRouteWrapper = (props) => {
   const pageVariants = {
     initial: {
       opacity: 0,
-      x: "-10vw",
+      //x: "-10vw",
     },
     in: {
       opacity: 1,
@@ -14,7 +14,7 @@ const AnimatedRouteWrapper = (props) => {
     out: {
       opacity: 0,
       zIndex: 1000,
-      x: "10vw",
+      //x: "10vw",
     },
   }
 

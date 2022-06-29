@@ -8,7 +8,7 @@ const BackGroundProvider = (props) => {
   const { colorMode, toggleColorMode } = useColorMode()
 
   return (
-    <Box transition="1s ease" h="100%">
+    <Box transition="1s ease" h="100vh">
       {props.children}
     </Box>
   )

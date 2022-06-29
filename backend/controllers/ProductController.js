@@ -2,15 +2,36 @@ const Bidding = require("../models/BiddingsModel")
 const Product = require("../models/ProductModel")
 const User = require("../models/userModel")
 
+const chooseWinner = async (newProduct) => {
+  try {
+    const bidding = await Bidding.find({ productId: newProduct._id })
+    console.log(bidding)
+    const highestBid = bidding.sort((a, b) => b.price > a.price)[0]
+    const winnerUser = await User.findById(highestBid.user)
+    winnerUser.wins.push(newProduct._id)
+    await winnerUser.save()
+    bidding.map((bid) => {
+      bid.remove()
+    })
+  } catch (e) {
+    console.error(e)
+  }
+}
+
 const createProduct = async (req, res) => {
   const { name, price, ownerId, photo, expire } = req.body
   const data = { name, price, ownerId, photo, expire }
+
   try {
-    const resp = await Product.create(data)
+    const newProduct = await Product.create(data)
     const owner = await User.findById(ownerId)
-    owner.selling.push({ _id: resp._id, price: resp.price })
+    owner.selling.push({ _id: newProduct._id, price: newProduct.price })
     await owner.save()
-    res.status(201).send(resp)
+    let sec = parseInt(new Date(newProduct.expire) - new Date())
+    setTimeout(() => {
+      chooseWinner(newProduct)
+    }, sec)
+    res.status(201).send(newProduct)
   } catch (err) {
     res.status(400).send(err)
   }
@@ -19,6 +40,9 @@ const createProduct = async (req, res) => {
 const getAllProducts = async (req, res) => {
   try {
     const bids = await Product.find()
+    bids.filter((bid) => {
+      bid.expire > Date.now()
+    })
     res.send(bids)
   } catch (e) {
     console.log(e)

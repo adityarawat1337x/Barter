@@ -15,10 +15,7 @@ const Time = (props) => {
     console.log(date)
     setDate((prev) => ({
       ...prev,
-      expire: {
-        ...prev.expire,
-        date: date,
-      },
+      expire: date,
     }))
   }, [hr, min, am])
 

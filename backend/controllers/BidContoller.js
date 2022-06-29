@@ -47,7 +47,6 @@ const createNewBid = async (res, USER, PRODUCT, biddingPrice) => {
       price: biddingPrice,
     })
     await USER.save()
-    await newBid.save()
     await updatePrice(PRODUCT)
     return res.status(201).send(newBid)
   } else return res.status(401).send({ error: "Insufficient Funds" })

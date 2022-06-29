@@ -22,10 +22,8 @@ const ProductSchema = new Schema(
       // required: true,
     },
     expire: {
-      date: {
-        type: Date,
-        required: true,
-      },
+      type: Date,
+      required: true,
     },
   },
   {
@@ -33,12 +31,7 @@ const ProductSchema = new Schema(
   }
 )
 
-// ProductSchema.pre("save", async function (next) {
-//   const doc = this
-//   const sec = (new Date(doc.expire.date) - new Date()) / 1000
-//   ProductSchema.index({ createdAt: 1 }, { expireAfterSeconds: sec })
-//   next()
-// })
+//ProductSchema.index({ expire: 1 }, { expireAfterSeconds: 0 })
 
 const Product = mongoose.model("Product", ProductSchema)
 

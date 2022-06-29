@@ -6,9 +6,11 @@ import Login from "../pages/Login"
 import Register from "../pages/Register"
 import FourZeroFour from "../pages/FourZeroFour"
 import Trending from "../pages/Trending"
+import Winner from "../pages/Winner"
 
 const RoutesAnimationProvider = () => {
   const location = useLocation()
+
   return (
     <AnimatePresence exitBeforeEnter>
       <Routes location={location} key={location.pathname}>
@@ -16,6 +18,7 @@ const RoutesAnimationProvider = () => {
         <Route exact path="/trending" element={<Trending />} />
         <Route exact path="/login" element={<Login />} />
         <Route exact path="/register" element={<Register role={0} />} />
+        <Route exact path="/results" element={<Winner />} />
         <Route path="*" element={<FourZeroFour />} />
       </Routes>
     </AnimatePresence>

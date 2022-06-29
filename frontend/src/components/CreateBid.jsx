@@ -23,9 +23,7 @@ const CreateBid = () => {
     price: 0,
     photo: "",
     ownerId: "",
-    expire: {
-      date: Date.now(),
-    },
+    expire: Date.now(),
   })
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -42,7 +40,7 @@ const CreateBid = () => {
       //TODO add phtoto here
       if (
         !item.expire ||
-        item.expire.date <= Date.now() ||
+        item.expire <= Date.now() ||
         !item.name ||
         !item.price ||
         !item.ownerId
@@ -98,21 +96,18 @@ const CreateBid = () => {
               placeholder="Date"
               variant="filled"
               value={
-                item.expire.date > Date.now()
-                  ? item.expire.date.toISOString().substring(0, 10)
+                item.expire > Date.now()
+                  ? item.expire.toISOString().substring(0, 10)
                   : ""
               }
               onChange={(e) => {
                 let val = new Date(e.target.value)
-                setItem((prev) => ({
-                  ...prev,
-                  expire: { ...prev.expire, date: val },
-                }))
+                setItem((prev) => ({ ...prev, expire: val }))
               }}
               type="date"
             />
-            {item.expire.date > Date.now() ? (
-              <Time setDate={setItem} actualDate={item.expire.date} />
+            {item.expire > Date.now() ? (
+              <Time setDate={setItem} actualDate={item.expire} />
             ) : (
               <></>
             )}

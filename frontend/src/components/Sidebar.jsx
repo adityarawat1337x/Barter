@@ -40,7 +40,7 @@ import { logout, reset } from "../feature/auth/authSlice"
 const LinkItems = [
   { name: "Home", icon: FiHome, link: "/" },
   { name: "Trending", icon: FiTrendingUp, link: "/trending" },
-  { name: "Explore", icon: FiCompass },
+  { name: "Results", icon: FiCompass, link: "/results" },
   { name: "Favourites", icon: FiStar },
   { name: "Settings", icon: FiSettings },
 ]

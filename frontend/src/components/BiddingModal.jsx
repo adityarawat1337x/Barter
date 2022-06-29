@@ -26,33 +26,47 @@ const IMAGE = "https://source.unsplash.com/random"
 const BiddingModal = (props) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const user = useSelector((state) => state.auth.user)
-  let { bid, item } = props
+  let { bid, item, productId } = props
   const [Bid, setBid] = useState({})
   const [Item, setItem] = useState(item)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    const f = async () => {
-      if (item === undefined) {
-        const data = await axios.get("http://localhost:5000/bids/" + bid._id)
+    if (bid) {
+      const f = async () => {
+        if (item === undefined) {
+          const data = await axios.get("http://localhost:5000/bids/" + bid._id)
+          setBid({
+            userId: user._id,
+            price: data.data.price,
+            id: bid._id,
+            ownerId: data.data.ownerId,
+          })
+          setItem(data.data)
+          return
+        }
+        setBid({
+          userId: user._id,
+          price: Item.price,
+          id: Item._id,
+          ownerId: Item.ownerId,
+        })
+        setItem(item)
+      }
+      f()
+    } else if (productId) {
+      const f = async () => {
+        const data = await axios.get("http://localhost:5000/items/" + productId)
         setBid({
           userId: user._id,
           price: data.data.price,
-          id: bid._id,
+          id: data.data._id,
           ownerId: data.data.ownerId,
         })
         setItem(data.data)
-        return
       }
-      setBid({
-        userId: user._id,
-        price: Item.price,
-        id: Item._id,
-        ownerId: Item.ownerId,
-      })
-      setItem(item)
+      f()
     }
-    f()
   }, [])
 
   const submit = async () => {

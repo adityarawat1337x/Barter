@@ -15,7 +15,7 @@ export default function Card(props) {
   const [timer, setTimer] = useState(0)
 
   useEffect(() => {
-    let sec = parseInt((new Date(Item.expire.date) - new Date()) / 1000)
+    let sec = parseInt((new Date(Item.expire) - new Date()) / 1000)
     setTimer(sec)
   }, [])
 

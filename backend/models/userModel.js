@@ -34,6 +34,12 @@ const userSchema = new Schema(
       type: Number,
       default: 10000000,
     },
+    wins: [
+      {
+        type: ObjectId,
+        ref: "Product",
+      },
+    ],
   },
   {
     timestamps: true,
