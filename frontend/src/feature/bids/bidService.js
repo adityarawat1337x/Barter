@@ -7,9 +7,8 @@ const create = async (bid) => {
   return response.data
 }
 
-const update = async (bid, bid_id) => {
-  const response = await axios.post(API_URL + "/" + bid_id, bid)
-  return response.data
+const update = async (bid) => {
+  return bid
 }
 
 const getAll = async () => {

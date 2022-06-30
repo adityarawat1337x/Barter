@@ -7,51 +7,12 @@ import {
   Image,
   VStack,
 } from "@chakra-ui/react"
-import { useEffect, useState } from "react"
+import Timer from "./Timer"
 const IMAGE = "https://source.unsplash.com/random"
 
 export default function Card(props) {
   let { Item, click } = props
-  const [timer, setTimer] = useState(0)
 
-  useEffect(() => {
-    let sec = parseInt((new Date(Item.expire) - new Date()) / 1000)
-    setTimer(sec)
-  }, [])
-
-  useEffect(() => {
-    const Interval = setInterval(() => {
-      setTimer(timer - 1)
-    }, 1000)
-    return () => {
-      clearInterval(Interval)
-    }
-  }, [timer])
-
-  const format = (timer) => {
-    const days = parseInt(timer / 60 / 60 / 24)
-    timer -= days * 24 * 60 * 60
-    const hr = parseInt(timer / 60 / 60)
-    timer -= hr * 60 * 60
-    const min = parseInt(timer / 60)
-    timer -= min * 60
-    const sec = parseInt(timer)
-    let str = ""
-    if (days) {
-      str += `${days}  d `
-    }
-    if (hr) {
-      str += `${hr}  h `
-    }
-    if (min) {
-      str += `${min}  m `
-    }
-    if (sec) {
-      str += `${sec} s`
-    }
-
-    return str
-  }
   return (
     <Stack
       onClick={click}
@@ -89,9 +50,7 @@ export default function Card(props) {
               <Text fontWeight={800} fontSize={"xl"}>
                 ${Item.price}
               </Text>
-              <Text background="tomato" p="1" borderRadius="md">
-                {format(timer)}
-              </Text>
+              <Timer Item={Item} />
             </VStack>
           </Stack>
         </>

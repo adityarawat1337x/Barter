@@ -66,6 +66,7 @@ const updatePrice = async (product) => {
     const highestBid = bids.reduce((a, b) => (a.price > b.price ? a : b))
     product.price = highestBid.price
     await product.save()
+    return product
   } catch (e) {
     console.log(e)
   }

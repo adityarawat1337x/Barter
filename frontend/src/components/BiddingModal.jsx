@@ -26,20 +26,30 @@ const IMAGE = "https://source.unsplash.com/random"
 const BiddingModal = (props) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const user = useSelector((state) => state.auth.user)
-  let { bid, item, productId } = props
+  let { bidId, item, productId, socket } = props
   const [Bid, setBid] = useState({})
   const [Item, setItem] = useState(item)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (bid) {
+    if (item) {
+      setItem(item)
+      setBid({
+        userId: user._id,
+        price: item.price,
+        id: item._id,
+        ownerId: item.ownerId,
+      })
+      return
+    }
+    if (bidId) {
       const f = async () => {
         if (item === undefined) {
-          const data = await axios.get("http://localhost:5000/bids/" + bid._id)
+          const data = await axios.get("http://localhost:5000/bids/" + bidId)
           setBid({
             userId: user._id,
             price: data.data.price,
-            id: bid._id,
+            id: bidId,
             ownerId: data.data.ownerId,
           })
           setItem(data.data)
@@ -67,7 +77,7 @@ const BiddingModal = (props) => {
       }
       f()
     }
-  }, [])
+  }, [item])
 
   const submit = async () => {
     try {
@@ -81,7 +91,7 @@ const BiddingModal = (props) => {
       }
       console.log("Send request")
       onClose()
-      dispatch(updateBid(Bid))
+      socket.emit("bid-update", Bid)
     } catch (e) {
       console.log(e.message)
     }
@@ -133,7 +143,7 @@ const BiddingModal = (props) => {
                         p="1"
                         borderRadius="md"
                       >
-                        Purchase
+                        Bid
                       </Button>
                     </VStack>
                   </Stack>

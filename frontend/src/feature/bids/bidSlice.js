@@ -48,11 +48,9 @@ export const getUserBids = createAsyncThunk(
 
 export const updateBid = createAsyncThunk(
   "items/update",
-  async (bid, thunkAPI) => {
+  async (newBid, thunkAPI) => {
     try {
-      console.log(bid)
-      const response = await bidService.update(bid, bid.id)
-      return response
+      return newBid
     } catch (error) {
       return thunkAPI.rejectWithValue(error)
     }
@@ -118,7 +116,21 @@ export const bidSlice = createSlice({
         state.isLoading = false
         state.isSuccess = true
         state.isError = false
-        state.bids.buy.push(action.payload)
+        console.log("OLD STATE", state)
+        let x = state
+        x.bids.all.forEach((element, index) => {
+          console.log(
+            "New Payload",
+            action.payload._id,
+            "Old Payload",
+            element._id
+          )
+
+          if (element._id === action.payload._id) {
+            x.bids.all[index] = action.payload
+          }
+        })
+        state = x
       })
       .addCase(updateBid.rejected, (state, action) => {
         state.isLoading = false
@@ -136,8 +148,7 @@ export const bidSlice = createSlice({
         state.isLoading = false
         state.isSuccess = true
         state.isError = false
-        state.bids.buy = action.payload
-        console.log(state.bids.buy)
+        state.bids.all = action.payload
       })
       .addCase(getUserBids.rejected, (state, action) => {
         state.isLoading = false
