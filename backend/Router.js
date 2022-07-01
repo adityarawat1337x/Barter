@@ -28,6 +28,8 @@ router.post("/bids/create", createProduct)
 router.get("/bids/user/:id", getUserBids)
 router.post("/bids/:id", putBidOn)
 router.get("/bids", getAllProducts)
+
+//* PRODUCT ROUTES
 router.get("/items/:id", getProduct)
 
 module.exports = router

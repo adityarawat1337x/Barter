@@ -10,6 +10,7 @@ const io = require("socket.io")(server, {
     methods: ["GET", "POST"],
   },
 })
+
 require("colors")
 const cors = require("cors")
 const { putBidOnSocket } = require("./controllers/BidContoller")
