@@ -17,7 +17,8 @@ import { useDispatch, useSelector } from "react-redux"
 import { create } from "../feature/bids/bidSlice"
 import Time from "./Time"
 
-const CreateBid = () => {
+const CreateBid = (props) => {
+  const { socket } = props
   const [item, setItem] = useState({
     name: "",
     price: 0,
@@ -34,8 +35,18 @@ const CreateBid = () => {
     if (user._id) setItem((prev) => ({ ...prev, ownerId: user._id }))
   }, [user])
 
+  useEffect(() => {
+    if (!socket) return
+    const handler = (payload) => {
+      dispatch(create(payload))
+    }
+    socket.on("bid-created", handler)
+    return () => {
+      socket.off("bid-created", handler)
+    }
+  }, [socket])
+
   const submit = async () => {
-    console.log(item)
     try {
       //TODO add phtoto here
       if (
@@ -43,11 +54,14 @@ const CreateBid = () => {
         item.expire <= Date.now() ||
         !item.name ||
         !item.price ||
-        !item.ownerId
+        !item.ownerId ||
+        !item.photo
       )
         return
-      dispatch(create(item))
       onClose()
+
+      console.log("socket sends:", item)
+      socket.emit("bid-create", item)
     } catch (e) {
       console.log(e.message)
     }
@@ -55,7 +69,7 @@ const CreateBid = () => {
 
   return user ? (
     <>
-      <Button onClick={onOpen} variant="solid" colorScheme="green">
+      <Button onClick={onOpen} variant="solid" colorScheme="whatsapp">
         Want to sell?
       </Button>
       <Modal
@@ -111,6 +125,21 @@ const CreateBid = () => {
             ) : (
               <></>
             )}
+            <Input
+              w="90%"
+              onChange={(e) => {
+                const img = e.target.files[0]
+                const reader = new FileReader()
+                reader.readAsDataURL(img)
+
+                reader.onloadend = (e) => {
+                  setItem((prev) => ({ ...prev, photo: reader.result }))
+                }
+              }}
+              placeholder="Photo"
+              variant="filled"
+              type="file"
+            />
           </ModalBody>
           <ModalFooter display="flex" justifyContent="center">
             <Button

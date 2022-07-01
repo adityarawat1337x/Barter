@@ -13,7 +13,10 @@ const io = require("socket.io")(server, {
 
 require("colors")
 const cors = require("cors")
-const { putBidOnSocket } = require("./controllers/BidContoller")
+const {
+  putBidOnSocket,
+  createSocketProduct,
+} = require("./controllers/SocketConstroller")
 
 const corsOptions = {
   credentials: true,
@@ -26,8 +29,12 @@ io.on("connection", (socket) => {
     putBidOnSocket(payload).then((resp) => {
       io.emit("bid-updated", resp)
     })
-    //console.log("New Bid:", resp)
-    //socket.broadcast.emit("bid", payload)
+  })
+
+  socket.on("bid-create", (payload) => {
+    createSocketProduct(payload).then((resp) => {
+      io.emit("bid-created", resp)
+    })
   })
 })
 

@@ -1,5 +1,5 @@
 import { VStack, Heading, Spacer, Wrap, WrapItem } from "@chakra-ui/react"
-import { React, useState, useEffect } from "react"
+import { React, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useLocation, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
@@ -8,23 +8,15 @@ import CreateBid from "../components/CreateBid"
 import { getUser } from "../feature/auth/authSlice"
 import { getAllBids, updateBid } from "../feature/bids/bidSlice"
 import AnimatedRouteWrapper from "../providers/AnimatedRouteWrapper"
-import { io } from "socket.io-client"
 
-const Trending = () => {
+const Trending = (props) => {
+  const { socket } = props
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useDispatch()
-  const [socket, setSocket] = useState(null)
+
   const { user, isLoading } = useSelector((state) => state.auth)
   const bids = useSelector((state) => state.items.bids.all)
-
-  useEffect(() => {
-    const s = io("http://localhost:5000")
-    setSocket(s)
-    return () => {
-      s.disconnect()
-    }
-  }, [])
 
   useEffect(() => {
     if (!socket) return
@@ -55,9 +47,12 @@ const Trending = () => {
   return user ? (
     <AnimatedRouteWrapper>
       <VStack>
-        {user ? <CreateBid /> : <></>}
+        {user ? <CreateBid socket={socket} /> : <></>}
         <Spacer />
-        {allBiddings(bids, socket)}
+        {allBiddings(
+          bids.filter((bid) => new Date(bid.expire) > new Date()),
+          socket
+        )}
       </VStack>
     </AnimatedRouteWrapper>
   ) : (
@@ -71,7 +66,7 @@ const allBiddings = (bids, socket) => (
       Trending{" "}
     </Heading>
     <Wrap spacing="5" w="100%" maxW="90vw">
-      {bids[0] ? (
+      {bids && bids[0] ? (
         bids.map((bid, idx) => (
           <WrapItem key={idx}>
             <BiddingModal

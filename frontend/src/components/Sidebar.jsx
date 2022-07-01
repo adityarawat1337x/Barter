@@ -33,12 +33,12 @@ import {
 import { BsMoonFill } from "react-icons/bs"
 import { FaSun } from "react-icons/fa"
 import { useDispatch, useSelector } from "react-redux"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import { logout, reset } from "../feature/auth/authSlice"
 
 const LinkItems = [
-  { name: "Home", icon: FiHome, link: "/" },
+  { name: "Home", icon: FiHome, link: "/home" },
   { name: "Trending", icon: FiTrendingUp, link: "/trending" },
   { name: "Results", icon: FiCompass, link: "/results" },
   { name: "Favourites", icon: FiStar },
@@ -48,7 +48,7 @@ export default function SidebarWithHeader(props) {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (
-    <Box minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
+    <Box minH="100vh" bg={useColorModeValue("white.100", "gray.900")}>
       <SidebarContent
         onClose={() => onClose}
         display={{ base: "none", md: "block" }}
@@ -77,6 +77,7 @@ export default function SidebarWithHeader(props) {
 
 const SidebarContent = ({ onClose, ...rest }) => {
   const navigate = useNavigate()
+  const location = useLocation()
 
   return (
     <Box
@@ -90,7 +91,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
         <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-          Barter
+          {location ? "Barter" + location.pathname : "BARTER"}
         </Text>
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
@@ -150,7 +151,8 @@ const MobileNav = ({ onOpen, ...rest }) => {
   const { colorMode, toggleColorMode } = useColorMode()
   const dispatch = useDispatch()
   const navigate = useNavigate()
-
+  const location = useLocation()
+  const { user } = useSelector((state) => state.auth)
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -176,7 +178,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
         fontFamily="monospace"
         fontWeight="bold"
       >
-        Barter
+        {location ? "Barter" + location.pathname : "BARTER"}
       </Text>
       <HStack spacing={{ base: "0", md: "6" }}>
         <IconButton
@@ -207,7 +209,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                   spacing="1px"
                   ml="2"
                 >
-                  <Text fontSize="sm">Justina Clark</Text>
+                  <Text fontSize="sm">{user.name}</Text>
                   <Text fontSize="xs" color="gray.600">
                     Admin
                   </Text>

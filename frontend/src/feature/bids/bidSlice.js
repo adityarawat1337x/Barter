@@ -15,10 +15,10 @@ const initialState = {
 
 export const create = createAsyncThunk(
   "items/create",
-  async (bid, thunkAPI) => {
+  async (newItem, thunkAPI) => {
     try {
-      const response = await bidService.create(bid)
-      return response
+      //const response = await bidService.create(bid)
+      return newItem
     } catch (error) {
       return thunkAPI.rejectWithValue(error)
     }
@@ -34,6 +34,18 @@ export const getAllBids = createAsyncThunk("items/getAll", async (thunkAPI) => {
   }
 })
 
+export const getUserItems = createAsyncThunk(
+  "items/getUserItems",
+  async (userId, thunkAPI) => {
+    try {
+      console.log(userId)
+      return userId
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error)
+    }
+  }
+)
+
 export const getUserBids = createAsyncThunk(
   "items/getUserBids",
   async (userId, thunkAPI) => {
@@ -48,9 +60,9 @@ export const getUserBids = createAsyncThunk(
 
 export const updateBid = createAsyncThunk(
   "items/update",
-  async (newBid, thunkAPI) => {
+  async (payload, thunkAPI) => {
     try {
-      return newBid
+      return payload
     } catch (error) {
       return thunkAPI.rejectWithValue(error)
     }
@@ -128,11 +140,13 @@ export const bidSlice = createSlice({
         index = x.bids.buy.findIndex(
           (element) => element._id === action.payload._id
         )
-        if (index === -1) {
-          x.bids.buy.push(action.payload)
-        } else {
-          x.bids.buy[index] = action.payload
-        }
+        console.log(action.payload.ownerId, action.payload.userId)
+        if (action.payload.ownerId !== action.payload.userId)
+          if (index === -1) {
+            x.bids.buy.push(action.payload)
+          } else {
+            x.bids.buy[index] = action.payload
+          }
 
         state = x
       })
@@ -152,9 +166,33 @@ export const bidSlice = createSlice({
         state.isLoading = false
         state.isSuccess = true
         state.isError = false
-        state.bids.all = action.payload
+        state.bids.buy = action.payload
       })
       .addCase(getUserBids.rejected, (state, action) => {
+        state.isLoading = false
+        state.isSuccess = false
+        state.isError = true
+        state.message = action.payload
+      })
+      .addCase(getUserItems.pending, (state) => {
+        state.isLoading = true
+        state.isSuccess = false
+        state.isError = false
+        state.message = ""
+      })
+      .addCase(getUserItems.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.isSuccess = true
+        state.isError = false
+        let x = state.bids.all
+        let selling = []
+        x.forEach((item) => {
+          if (item.ownerId === action.payload) selling.push(item)
+        })
+        console.log(selling)
+        state.bids.sell = selling
+      })
+      .addCase(getUserItems.rejected, (state, action) => {
         state.isLoading = false
         state.isSuccess = false
         state.isError = true

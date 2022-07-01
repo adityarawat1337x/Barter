@@ -6,12 +6,13 @@ import {
   Stack,
   Image,
   VStack,
+  Spacer,
 } from "@chakra-ui/react"
 import Timer from "./Timer"
 const IMAGE = "https://source.unsplash.com/random"
 
 export default function Card(props) {
-  let { Item, click } = props
+  let { Item, timer, click } = props
 
   return (
     <Stack
@@ -33,7 +34,7 @@ export default function Card(props) {
               h="200px"
               rounded={"lg"}
               objectFit={"cover"}
-              src={IMAGE}
+              src={Item.photo}
               m={4}
             />
           </Box>
@@ -50,7 +51,7 @@ export default function Card(props) {
               <Text fontWeight={800} fontSize={"xl"}>
                 ${Item.price}
               </Text>
-              <Timer Item={Item} />
+              {timer ? <Spacer /> : <Timer Item={Item} />}
             </VStack>
           </Stack>
         </>
