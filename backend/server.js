@@ -23,9 +23,7 @@ const corsOptions = {
 io.on("connection", (socket) => {
   console.log("socket is active: ", socket.id)
   socket.on("bid-update", (payload) => {
-    console.log("payload incoming: ", payload)
     putBidOnSocket(payload).then((resp) => {
-      console.log(resp)
       io.emit("bid-updated", resp)
     })
     //console.log("New Bid:", resp)

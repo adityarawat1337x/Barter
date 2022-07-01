@@ -57,26 +57,7 @@ const Trending = () => {
       <VStack>
         {user ? <CreateBid /> : <></>}
         <Spacer />
-        <>
-          <Heading w="100%" justifyContent="centre">
-            Trending{" "}
-          </Heading>
-          <Wrap spacing="5" w="100%" maxW="90vw">
-            {bids[0] ? (
-              bids.map((bid, idx) => (
-                <WrapItem key={idx}>
-                  <BiddingModal
-                    socket={socket}
-                    bidId={bid._id}
-                    item={bid}
-                  ></BiddingModal>
-                </WrapItem>
-              ))
-            ) : (
-              <></>
-            )}
-          </Wrap>
-        </>
+        {allBiddings(bids, socket)}
       </VStack>
     </AnimatedRouteWrapper>
   ) : (
@@ -84,8 +65,27 @@ const Trending = () => {
   )
 }
 
-// const allBiddings = (bids, socket) => (
-
-// )
+const allBiddings = (bids, socket) => (
+  <>
+    <Heading w="100%" justifyContent="centre">
+      Trending{" "}
+    </Heading>
+    <Wrap spacing="5" w="100%" maxW="90vw">
+      {bids[0] ? (
+        bids.map((bid, idx) => (
+          <WrapItem key={idx}>
+            <BiddingModal
+              socket={socket}
+              bidId={bid._id}
+              item={bid}
+            ></BiddingModal>
+          </WrapItem>
+        ))
+      ) : (
+        <></>
+      )}
+    </Wrap>
+  </>
+)
 
 export default Trending

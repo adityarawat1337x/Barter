@@ -81,6 +81,7 @@ export const bidSlice = createSlice({
         state.isSuccess = true
         state.isError = false
         state.bids.sell.push(action.payload)
+        state.bids.all.push(action.payload)
       })
       .addCase(create.rejected, (state, action) => {
         state.isLoading = false
@@ -116,20 +117,23 @@ export const bidSlice = createSlice({
         state.isLoading = false
         state.isSuccess = true
         state.isError = false
-        console.log("OLD STATE", state)
-        let x = state
-        x.bids.all.forEach((element, index) => {
-          console.log(
-            "New Payload",
-            action.payload._id,
-            "Old Payload",
-            element._id
-          )
 
-          if (element._id === action.payload._id) {
-            x.bids.all[index] = action.payload
-          }
-        })
+        let x = state
+        //All BIDS
+        let index = x.bids.all.findIndex(
+          (element) => element._id === action.payload._id
+        )
+        x.bids.all[index] = action.payload
+        //BUY SECTION
+        index = x.bids.buy.findIndex(
+          (element) => element._id === action.payload._id
+        )
+        if (index === -1) {
+          x.bids.buy.push(action.payload)
+        } else {
+          x.bids.buy[index] = action.payload
+        }
+
         state = x
       })
       .addCase(updateBid.rejected, (state, action) => {

@@ -17,7 +17,6 @@ import {
   NumberInputField,
 } from "@chakra-ui/react"
 import Card from "./Card"
-import axios from "axios"
 import { useDispatch, useSelector } from "react-redux"
 import { updateBid } from "../feature/bids/bidSlice"
 import { toast } from "react-toastify"
@@ -26,7 +25,7 @@ const IMAGE = "https://source.unsplash.com/random"
 const BiddingModal = (props) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const user = useSelector((state) => state.auth.user)
-  let { bidId, item, productId, socket } = props
+  let { item, socket } = props
   const [Bid, setBid] = useState({})
   const [Item, setItem] = useState(item)
   const dispatch = useDispatch()
@@ -41,41 +40,6 @@ const BiddingModal = (props) => {
         ownerId: item.ownerId,
       })
       return
-    }
-    if (bidId) {
-      const f = async () => {
-        if (item === undefined) {
-          const data = await axios.get("http://localhost:5000/bids/" + bidId)
-          setBid({
-            userId: user._id,
-            price: data.data.price,
-            id: bidId,
-            ownerId: data.data.ownerId,
-          })
-          setItem(data.data)
-          return
-        }
-        setBid({
-          userId: user._id,
-          price: Item.price,
-          id: Item._id,
-          ownerId: Item.ownerId,
-        })
-        setItem(item)
-      }
-      f()
-    } else if (productId) {
-      const f = async () => {
-        const data = await axios.get("http://localhost:5000/items/" + productId)
-        setBid({
-          userId: user._id,
-          price: data.data.price,
-          id: data.data._id,
-          ownerId: data.data.ownerId,
-        })
-        setItem(data.data)
-      }
-      f()
     }
   }, [item])
 
@@ -125,25 +89,27 @@ const BiddingModal = (props) => {
                   </Box>
                   <Stack align={"center"}>
                     <VStack align={"center"}>
-                      <Text fontSize={"xl"}>{`Current: $${Item.price}`}</Text>
-                      <Text fontSize={"xl"}>{`Your: $${Bid.price}`}</Text>
+                      <Text fontSize={"xl"}>{`Current: $${
+                        Item.price
+                      } Minimum: $${Item.price + 50}`}</Text>
                       <NumberInput w="50%">
                         <NumberInputField
                           placeholder="New bidding price"
                           value={Bid.price}
                           onChange={(e) => {
                             const val = parseInt(e.target.value)
-                            setBid((prev) => ({ ...prev, price: val }))
+                            if (val >= Item.price + 50)
+                              setBid((prev) => ({ ...prev, price: val }))
                           }}
                         ></NumberInputField>
                       </NumberInput>
                       <Button
                         onClick={submit}
                         colorScheme="whatsapp"
-                        p="1"
+                        p="3"
                         borderRadius="md"
                       >
-                        Bid
+                        Lets Go
                       </Button>
                     </VStack>
                   </Stack>

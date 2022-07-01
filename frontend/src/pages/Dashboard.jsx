@@ -1,11 +1,10 @@
 import { VStack, Heading, Spacer, Wrap, WrapItem } from "@chakra-ui/react"
-import { React, useEffect, useState } from "react"
+import { React, useEffect } from "react"
 import { useSelector } from "react-redux"
 import { useLocation, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import BiddingModal from "../components/BiddingModal"
 import CreateBid from "../components/CreateBid"
-import bidService from "../feature/bids/bidService"
 import AnimatedRouteWrapper from "../providers/AnimatedRouteWrapper"
 
 const Dashboard = () => {
@@ -13,7 +12,8 @@ const Dashboard = () => {
   const location = useLocation()
 
   const { user, isLoading } = useSelector((state) => state.auth)
-  const [userBids, setUserBids] = useState([])
+  const { sell, buy } = useSelector((state) => state.items.bids)
+
   useEffect(() => {
     if (!user && !isLoading && location.pathname === "/") {
       toast.error("You must be logged in to view this page")
@@ -22,16 +22,45 @@ const Dashboard = () => {
   }, [user, isLoading])
 
   useEffect(() => {
-    if (user) {
-      const f = async () => {
-        const bids = await bidService.getUserBids(user._id)
-        console.log("bids", bids)
-        setUserBids(bids)
-      }
-
-      f()
+    if (!buy || !sell) {
     }
-  }, [user])
+    // if (!buy) {
+    //   const f = async () => {
+    //     if (item === undefined) {
+    //       const data = await axios.get("http://localhost:5000/bids/" + bidId)
+    //       setBid({
+    //         userId: user._id,
+    //         price: data.data.price,
+    //         id: bidId,
+    //         ownerId: data.data.ownerId,
+    //       })
+    //       setItem(data.data)
+    //       return
+    //     }
+    //     setBid({
+    //       userId: user._id,
+    //       price: Item.price,
+    //       id: Item._id,
+    //       ownerId: Item.ownerId,
+    //     })
+    //     setItem(item)
+    //   }
+    //   f()
+    // }
+    // if (!sell) {
+    //   const f = async () => {
+    //     const data = await axios.get("http://localhost:5000/items/" + productId)
+    //     setBid({
+    //       userId: user._id,
+    //       price: data.data.price,
+    //       id: data.data._id,
+    //       ownerId: data.data.ownerId,
+    //     })
+    //     setItem(data.data)
+    //   }
+    //   f()
+    // }
+  }, [])
 
   console.log(user)
   return user ? (
@@ -39,8 +68,8 @@ const Dashboard = () => {
       <VStack>
         <CreateBid />
         <Spacer />
-        {selling(user)}
-        {bidding(userBids)}
+        {selling(sell)}
+        {bidding(buy)}
       </VStack>
     </AnimatedRouteWrapper>
   ) : (
@@ -48,20 +77,20 @@ const Dashboard = () => {
   )
 }
 
-const selling = (user) => (
+const selling = (sell) => (
   <>
     <Heading
       w="100%"
       justifyContent="flex-start"
-      display={user && user.selling && user.selling[0] ? "block" : "none"}
+      display={sell && sell[0] ? "block" : "none"}
     >
       You are selling
     </Heading>
     <Wrap spacing="5" w="100%" maxW="90vw">
-      {user && user.selling && user.selling[0] ? (
-        user.selling.map((product, idx) => (
+      {sell && sell[0] ? (
+        sell.map((product, idx) => (
           <WrapItem key={idx}>
-            <BiddingModal productId={product._id}></BiddingModal>
+            <BiddingModal bidId={product._id} item={product}></BiddingModal>
           </WrapItem>
         ))
       ) : (
@@ -71,20 +100,20 @@ const selling = (user) => (
   </>
 )
 
-const bidding = (userBids) => (
+const bidding = (buy) => (
   <>
     <Heading
       w="100%"
       justifyContent="flex-start"
-      display={userBids && userBids[0] ? "block" : "none"}
+      display={buy && buy[0] ? "block" : "none"}
     >
       You are Bidding on
     </Heading>
     <Wrap spacing="5" w="100%" maxW="90vw">
-      {userBids && userBids[0] ? (
-        userBids.map((product, idx) => (
+      {buy && buy[0] ? (
+        buy.map((product, idx) => (
           <WrapItem key={idx}>
-            <BiddingModal productId={product.product}></BiddingModal>
+            <BiddingModal bidId={product._id} item={product}></BiddingModal>
           </WrapItem>
         ))
       ) : (
